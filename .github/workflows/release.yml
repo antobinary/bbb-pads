@@ -31,8 +31,8 @@ jobs:
     
     - name: Configure Git with the triggering user's info
       run: |
-        git config --global user.email "${{ steps.get_email.outputs.result }}"
-        git config --global user.name "${{ github.actor }}"
+        git config user.name "${{ github.actor }}"
+        git config user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
 
 
     # - name: Configure Git with the triggering user's info
