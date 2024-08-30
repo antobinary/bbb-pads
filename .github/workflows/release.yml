@@ -23,20 +23,18 @@ jobs:
 
 
     - name: Get triggering user's email
-      id: get_email
-      uses: actions/github-script@v6
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const { data: user } = await github.users.getByUsername({
-            username: github.actor
-          });
-          return user.email || 'github-actions@github.com';
-    
-    - name: Configure Git with the triggering user's info
       run: |
-        git config --global user.email "${{ steps.get_email.outputs.result }}"
-        git config --global user.name "${{ github.actor }}"
+        user_email=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+        https://api.github.com/users/${{ github.actor }} | jq -r '.email')
+        if [ -z "$user_email" ]; then
+          user_email="github-actions@github.com"
+        fi
+        echo "user_email=$user_email" >> $GITHUB_ENV
+        
+        - name: Configure Git with the triggering user's info
+          run: |
+            git config --global user.email "${{ steps.get_email.outputs.result }}"
+            git config --global user.name "${{ github.actor }}"
 
     
 
