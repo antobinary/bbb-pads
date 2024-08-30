@@ -21,10 +21,30 @@ jobs:
       with:
         node-version: '20'
 
+
+    - name: Get triggering user's email
+      id: get_email
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const { data: user } = await github.users.getByUsername({
+            username: github.actor
+          });
+          return user.email || 'github-actions@github.com';
+    
     - name: Configure Git with the triggering user's info
       run: |
-        git config --global user.email "${{ github.event.pusher.email }}"
-        git config --global user.name "${{ github.event.pusher.name }}"
+        git config --global user.email "${{ steps.get_email.outputs.result }}"
+        git config --global user.name "${{ github.actor }}"
+
+    
+
+
+    # - name: Configure Git with the triggering user's info
+    #   run: |
+    #     git config --global user.email "${{ github.event.pusher.email }}"
+    #     git config --global user.name "${{ github.event.pusher.name }}"
 
     - name: Bump version and push tag
       run: |
